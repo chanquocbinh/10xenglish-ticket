@@ -1,0 +1,170 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  DEV_ADMIN       // Kỹ thuật viên chính / Quản trị viên cao nhất
+  MANAGER         // Sếp / Quản lý - có quyền ký duyệt nghiệm thu
+  LEAD_STAFF      // Trưởng bộ phận
+  STAFF           // Nhân viên báo lỗi
+}
+
+enum ProjectCode {
+  LMS             // Project 1: Học Vụ & LMS Học Viên
+  CRM             // Project 2: CRM Tuyển Sinh & Kế Toán Vận Hành
+}
+
+enum TicketSeverity {
+  BLOCKER         // Đỏ: Cháy, dừng hệ thống
+  HIGH            // Cam: Lỗi nghiêm trọng
+  MEDIUM          // Vàng: Lỗi logic/giao diện
+  LOW             // Xám: Lỗi nhẹ, lệch layout
+}
+
+enum TicketStatus {
+  NEW             // Mới tiếp nhận
+  IN_PROGRESS     // Đang xử lý
+  RESOLVED        // Đã fix (Chờ test/nghiệm thu)
+  APPROVED        // Đã nghiệm thu (Sếp duyệt)
+  CLOSED          // Đóng hoàn tất
+  REJECTED        // Sếp yêu cầu sửa lại
+}
+
+enum TaskType {
+  PLANNED         // Task trong kế hoạch Sprint
+  UNPLANNED_BOSS  // Task sếp yêu cầu chen ngang đột xuất
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  PENDING_APPROVAL
+  DONE
+}
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   // VD: Học vụ & Đào tạo, Tư vấn Tuyển sinh, Kế toán...
+  code        String   @unique
+  users       User[]
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id                  String       @id @default(uuid())
+  email               String       @unique
+  username            String       @unique
+  fullName            String
+  passwordHash        String
+  isPasswordChanged   Boolean      @default(false) // Bắt buộc đổi mật khẩu ở lần login đầu
+  role                Role         @default(STAFF)
+  departmentId        String?
+  department          Department?  @relation(fields: [departmentId], references: [id])
+  ticketsCreated      Ticket[]     @relation("TicketReporter")
+  tasksAssigned       Task[]       @relation("TaskAssignee")
+  auditLogs           AuditLog[]
+  comments            Comment[]
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+}
+
+model Project {
+  id          String       @id @default(uuid())
+  code        ProjectCode  @unique
+  name        String       // "Project 1: Học Vụ & LMS Học Viên"
+  description String?
+  tickets     Ticket[]
+  tasks       Task[]
+  sprints     Sprint[]
+  createdAt   DateTime     @default(now())
+}
+
+model Sprint {
+  id          String       @id @default(uuid())
+  name        String       // VD: "Sprint 14"
+  goal        String?
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id])
+  startDate   DateTime
+  endDate     DateTime
+  capacitySp  Int          @default(24)
+  isCurrent   Boolean      @default(false)
+  tasks       Task[]
+  createdAt   DateTime     @default(now())
+}
+
+model Ticket {
+  id             String         @id @default(uuid())
+  ticketNumber   Int            @unique @default(autoincrement()) // Hiển thị: #TK-101
+  title          String
+  projectId      String
+  project        Project        @relation(fields: [projectId], references: [id])
+  submodule      String         // Điểm danh, Đóng học phí, Lịch giáo viên...
+  affectedRole   String         // Giáo viên, Học viên, Tư vấn, Kế toán
+  severity       TicketSeverity @default(MEDIUM)
+  status         TicketStatus   @default(NEW)
+  description    String?        // Các bước tái hiện
+  evidenceUrls   String[]       // Mảng đường dẫn file đã upload trên server
+  reporterId     String
+  reporter       User           @relation("TicketReporter", fields: [reporterId], references: [id])
+  comments       Comment[]
+  auditLogs      AuditLog[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Task {
+  id             String       @id @default(uuid())
+  title          String
+  projectId      String
+  project        Project      @relation(fields: [projectId], references: [id])
+  sprintId       String?
+  sprint         Sprint?      @relation(fields: [sprintId], references: [id])
+  type           TaskType     @default(PLANNED)
+  status         TaskStatus   @default(TODO)
+  storyPoints    Int          @default(3)
+  assigneeId     String?
+  assignee       User?        @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  checklists     Json?        // Danh sách subtasks checklist [{title: string, completed: boolean}]
+  signoffReason  String?      // Lý do từ chối nếu bị sếp trả về
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  content     String
+  attachments String[]
+  createdAt   DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  ticketId    String?
+  ticket      Ticket?  @relation(fields: [ticketId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      String   // VD: "APPROVE_SIGNOFF", "REJECT_SIGNOFF", "SWAP_SPRINT_TASK"
+  detail      String   // Nội dung chi tiết không thể sửa/xóa
+  createdAt   DateTime @default(now())
+}
+
+model SystemSetting {
+  id                   String   @id @default("default")
+  allowedFileTypes     String   @default("image/png,image/jpeg,image/webp,video/mp4,video/quicktime")
+  maxImageSizeMb       Int      @default(10)   // Giới hạn ảnh MB
+  maxVideoSizeMb       Int      @default(50)   // Giới hạn video MB
+  allowVideoUpload     Boolean  @default(true) // Bật/tắt upload video
+  storageQuotaGb       Int      @default(20)   // Hạn mức lưu trữ trên server
+  defaultUserPassword  String   @default("10xEnglish@2026")
+  updatedAt            DateTime @updatedAt
+}
