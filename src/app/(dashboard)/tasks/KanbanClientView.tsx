@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import { updateTaskStatusAction, createTaskAction } from '@/app/actions/task.actions';
 import { useRouter } from 'next/navigation';
+import { formatDateTime } from '@/lib/date';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Dialog from '@mui/material/Dialog';
@@ -23,10 +25,8 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import AddIcon from '@mui/icons-material/Add';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import CloseIcon from '@mui/icons-material/Close';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { Plus, ChevronRight, ChevronLeft, X } from 'lucide';
 
 type TaskItem = {
   id: string;
@@ -38,6 +38,7 @@ type TaskItem = {
   assignee: { fullName: string } | null;
   checklists: unknown;
   signoffReason: string | null;
+  createdAt?: Date;
 };
 
 export function KanbanClientView({
@@ -81,7 +82,7 @@ export function KanbanClientView({
 
   const columns: { key: TaskItem['status']; label: string; headerColor: string }[] = [
     { key: 'TODO', label: 'CẦN LÀM (TO DO)', headerColor: '#64748b' },
-    { key: 'IN_PROGRESS', label: 'ĐANG LÀM (IN PROGRESS)', headerColor: '#1976d2' },
+    { key: 'IN_PROGRESS', label: 'ĐANG LÀM (IN PROGRESS)', headerColor: 'var(--color-primary)' },
     { key: 'PENDING_APPROVAL', label: 'CHỜ DUYỆT (UAT)', headerColor: '#ed6c02' },
     { key: 'DONE', label: 'ĐÃ XONG (DONE)', headerColor: '#2e7d32' },
   ];
@@ -109,15 +110,13 @@ export function KanbanClientView({
               Theo dõi tiến độ kế hoạch và các hạng mục đột xuất phát sinh
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            color="primary"
+          <AppButton
             size="small"
-            startIcon={<AddIcon />}
+            startIcon={<MorphIcon icon={Plus} size={18} />}
             onClick={() => setIsModalOpen(true)}
           >
             Thêm Task Mới
-          </Button>
+          </AppButton>
         </CardContent>
       </Card>
 
@@ -216,9 +215,16 @@ export function KanbanClientView({
                         borderTop: '1px solid #f1f5f9',
                       }}
                     >
-                      <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6875rem' }}>
-                        {t.assignee?.fullName || 'Digihome'}
-                      </Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6875rem' }}>
+                          {t.assignee?.fullName || 'Digihome'}
+                        </Typography>
+                        {t.createdAt && (
+                          <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.625rem', fontFamily: 'monospace' }}>
+                            {formatDateTime(t.createdAt)}
+                          </Typography>
+                        )}
+                      </Box>
 
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
                         {col.key !== 'TODO' && (
@@ -236,7 +242,7 @@ export function KanbanClientView({
                             }
                             sx={{ p: 0.5 }}
                           >
-                            <ArrowBackIosNewIcon sx={{ fontSize: 12 }} />
+                            <MorphIcon icon={ChevronLeft} size={14} />
                           </IconButton>
                         )}
                         {col.key !== 'DONE' && (
@@ -255,7 +261,7 @@ export function KanbanClientView({
                             }
                             sx={{ p: 0.5 }}
                           >
-                            <ArrowForwardIosIcon sx={{ fontSize: 12 }} />
+                            <MorphIcon icon={ChevronRight} size={14} />
                           </IconButton>
                         )}
                       </Box>
@@ -285,7 +291,7 @@ export function KanbanClientView({
             Thêm Task Vào Kế Hoạch
           </Typography>
           <IconButton onClick={() => setIsModalOpen(false)} size="small" sx={{ color: 'text.secondary' }}>
-            <CloseIcon fontSize="small" />
+            <MorphIcon icon={X} size={18} />
           </IconButton>
         </DialogTitle>
 
@@ -335,16 +341,14 @@ export function KanbanClientView({
             <Button onClick={() => setIsModalOpen(false)} color="inherit" size="small">
               Hủy
             </Button>
-            <Button
+            <AppButton
               type="submit"
-              variant="contained"
-              color="primary"
               size="small"
               disabled={isSubmitting}
               startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}
             >
               Lưu Nhiệm Vụ
-            </Button>
+            </AppButton>
           </DialogActions>
         </Box>
       </Dialog>

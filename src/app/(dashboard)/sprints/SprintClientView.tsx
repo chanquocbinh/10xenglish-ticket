@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Chip from '@mui/material/Chip';
 import LinearProgress from '@mui/material/LinearProgress';
 import Paper from '@mui/material/Paper';
@@ -14,9 +15,9 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { ArrowLeftRight, Calendar, ArrowRight, Clock } from 'lucide';
+import { formatDateTime, formatDate } from '@/lib/date';
 
 interface SprintProps {
   currentSprint: {
@@ -24,9 +25,11 @@ interface SprintProps {
     name: string;
     goal: string | null;
     capacitySp: number;
+    startDate?: Date;
+    endDate?: Date;
     tasks: { id: string; title: string; storyPoints: number; type: string; project: { code: string } }[];
   } | null;
-  backlogTasks: { id: string; title: string; storyPoints: number; project: { code: string } }[];
+  backlogTasks: { id: string; title: string; storyPoints: number; project: { code: string }; createdAt?: Date }[];
   projects: { id: string; code: string; name: string }[];
 }
 
@@ -53,17 +56,23 @@ export function SprintClientView({ currentSprint, backlogTasks, projects }: Spri
               <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>
                 Mục tiêu Sprint: {currentSprint?.goal || 'Chưa thiết lập mục tiêu'}
               </Typography>
+              {currentSprint?.startDate && currentSprint?.endDate && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                  <MorphIcon icon={Clock} size={14} />
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: 'monospace' }}>
+                    Thời gian: {formatDateTime(currentSprint.startDate)} - {formatDateTime(currentSprint.endDate)}
+                  </Typography>
+                </Box>
+              )}
             </Box>
 
-            <Button
-              variant="outlined"
-              color="warning"
+            <AppButton
               size="small"
-              startIcon={<SwapHorizIcon />}
+              startIcon={<MorphIcon icon={ArrowLeftRight} size={18} />}
               onClick={() => setSprintGuardModalOpen(true)}
             >
               Yêu Cầu Chen Ngang & Bù Trừ Task
-            </Button>
+            </AppButton>
           </Box>
 
           <Box>
@@ -148,7 +157,7 @@ export function SprintClientView({ currentSprint, backlogTasks, projects }: Spri
                         size="small"
                         variant="text"
                         color="primary"
-                        endIcon={<ArrowForwardIcon fontSize="small" />}
+                        endIcon={<MorphIcon icon={ArrowRight} size={14} />}
                         onClick={() => alert('Tính năng đẩy vào sprint đang được kết nối')}
                         sx={{ fontSize: '0.75rem', py: 0.25 }}
                       >
@@ -166,7 +175,9 @@ export function SprintClientView({ currentSprint, backlogTasks, projects }: Spri
         <Card>
           <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <CalendarMonthOutlinedIcon fontSize="small" sx={{ color: 'primary.main' }} />
+              <Box sx={{ color: 'primary.main', display: 'flex', alignItems: 'center' }}>
+                <MorphIcon icon={Calendar} size={18} />
+              </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.primary', letterSpacing: 0.5 }}>
                 LỘ TRÌNH PHÁT HÀNH (ROADMAP)
               </Typography>
@@ -176,7 +187,7 @@ export function SprintClientView({ currentSprint, backlogTasks, projects }: Spri
             </Typography>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-              <Box sx={{ pl: 2, borderLeft: '3px solid #1976d2' }}>
+              <Box sx={{ pl: 2, borderLeft: '3px solid var(--color-primary)' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>
                   THÁNG 9 / 2026 (HIỆN TẠI)
                 </Typography>

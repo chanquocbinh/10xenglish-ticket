@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
+import { formatDateTime } from '@/lib/date';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -8,19 +9,15 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
-import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
-import BugReportOutlinedIcon from '@mui/icons-material/BugReportOutlined';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { Bug, CheckCircle, Clock, ShieldCheck, Download, ArrowRight } from 'lucide';
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -60,6 +57,23 @@ export default async function DashboardPage() {
     include: { tasks: true },
   });
 
+  const recentTickets = await prisma.ticket.findMany({
+    where: projectWhere,
+    take: 5,
+    orderBy: { createdAt: 'desc' },
+    include: { reporter: true, project: true },
+  });
+
+  const pendingApprovalTasks = await prisma.task.findMany({
+    where: {
+      ...projectWhere,
+      status: 'PENDING_APPROVAL',
+    },
+    take: 5,
+    orderBy: { createdAt: 'desc' },
+    include: { project: true },
+  });
+
   const recentAuditLogs = await prisma.auditLog.findMany({
     orderBy: { createdAt: 'desc' },
     take: 4,
@@ -73,7 +87,7 @@ export default async function DashboardPage() {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(4, 1fr)' },
-          gap: 2,
+          gap: 2.5,
         }}
       >
         <Card sx={{ borderLeft: '4px solid #d32f2f' }}>
@@ -81,13 +95,13 @@ export default async function DashboardPage() {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Box>
                 <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
-                  BUG TỒN ĐỌNG
+                  TỔNG BUG ĐANG MỞ
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 700, color: '#d32f2f', mt: 0.5 }}>
-                  {pendingBugsCount} lỗi
+                <Typography variant="h5" sx={{ fontWeight: 700, color: 'error.main', mt: 0.5 }}>
+                  {pendingBugsCount}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#d32f2f', fontWeight: 600, display: 'block', mt: 1 }}>
-                  {blockerBugsCount} bug Blocker cần xử lý
+                <Typography variant="caption" sx={{ color: 'error.dark', fontWeight: 600, display: 'block', mt: 1 }}>
+                  {blockerBugsCount} lỗi Blocker nghiêm trọng
                 </Typography>
               </Box>
               <Box
@@ -102,13 +116,13 @@ export default async function DashboardPage() {
                   justifyContent: 'center',
                 }}
               >
-                <BugReportOutlinedIcon fontSize="small" />
+                <MorphIcon icon={Bug} size={20} />
               </Box>
             </Box>
           </CardContent>
         </Card>
 
-        <Card sx={{ borderLeft: '4px solid #1976d2' }}>
+        <Card sx={{ borderLeft: '4px solid var(--color-primary)' }}>
           <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <Box>
@@ -134,7 +148,7 @@ export default async function DashboardPage() {
                   justifyContent: 'center',
                 }}
               >
-                <CheckCircleOutlinedIcon fontSize="small" />
+                <MorphIcon icon={CheckCircle} size={20} />
               </Box>
             </Box>
           </CardContent>
@@ -166,7 +180,7 @@ export default async function DashboardPage() {
                   justifyContent: 'center',
                 }}
               >
-                <AccessTimeOutlinedIcon fontSize="small" />
+                <MorphIcon icon={Clock} size={20} />
               </Box>
             </Box>
           </CardContent>
@@ -198,7 +212,7 @@ export default async function DashboardPage() {
                   justifyContent: 'center',
                 }}
               >
-                <VerifiedUserOutlinedIcon fontSize="small" />
+                <MorphIcon icon={ShieldCheck} size={20} />
               </Box>
             </Box>
           </CardContent>
@@ -219,14 +233,12 @@ export default async function DashboardPage() {
                   Minh chứng kết quả thực tế để nghiệm thu tiến độ
                 </Typography>
               </Box>
-              <Button
-                variant="outlined"
-                color="inherit"
+              <AppButton
                 size="small"
-                startIcon={<FileDownloadOutlinedIcon fontSize="small" />}
+                startIcon={<MorphIcon icon={Download} size={18} />}
               >
                 Xuất Báo Cáo Tiến Độ
-              </Button>
+              </AppButton>
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
@@ -326,7 +338,7 @@ export default async function DashboardPage() {
                           {log.detail}
                         </Typography>
                         <Typography component="span" variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6875rem', fontFamily: 'monospace' }}>
-                          {new Date(log.createdAt).toLocaleTimeString('vi-VN')}
+                          {formatDateTime(log.createdAt)}
                         </Typography>
                       </>
                     }
@@ -340,15 +352,13 @@ export default async function DashboardPage() {
           <Box sx={{ p: 2, pt: 0 }}>
             <Divider sx={{ mb: 2 }} />
             <Link href="/approval" style={{ textDecoration: 'none' }}>
-              <Button
+              <AppButton
                 fullWidth
-                variant="text"
-                color="primary"
                 size="small"
-                endIcon={<ArrowForwardIcon fontSize="small" />}
+                endIcon={<MorphIcon icon={ArrowRight} size={16} />}
               >
                 Đến Trang Phê Duyệt Nghiệm Thu
-              </Button>
+              </AppButton>
             </Link>
           </Box>
         </Card>

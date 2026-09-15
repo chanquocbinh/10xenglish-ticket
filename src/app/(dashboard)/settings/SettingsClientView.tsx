@@ -9,7 +9,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Alert from '@mui/material/Alert';
 import LinearProgress from '@mui/material/LinearProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -17,8 +17,9 @@ import Switch from '@mui/material/Switch';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
-import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { HardDrive, Save, Clock } from 'lucide';
+import { formatDateTime } from '@/lib/date';
 
 interface SettingData {
   allowedFileTypes: string;
@@ -26,6 +27,7 @@ interface SettingData {
   maxVideoSizeMb: number;
   allowVideoUpload: boolean;
   storageQuotaGb: number;
+  updatedAt?: Date;
 }
 
 export function SettingsClientView({ initialSetting }: { initialSetting: SettingData }) {
@@ -66,7 +68,7 @@ export function SettingsClientView({ initialSetting }: { initialSetting: Setting
       <Card>
         <CardContent sx={{ p: 3, '&:last-child': { pb: 3 }, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Box
                 sx={{
                   width: 40,
@@ -79,7 +81,7 @@ export function SettingsClientView({ initialSetting }: { initialSetting: Setting
                   justifyContent: 'center',
                 }}
               >
-                <StorageOutlinedIcon />
+                <MorphIcon icon={HardDrive} size={20} />
               </Box>
               <Box>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
@@ -87,95 +89,89 @@ export function SettingsClientView({ initialSetting }: { initialSetting: Setting
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                   Lưu trữ tại thư mục <code>/public/uploads/</code>
+                  {initialSetting.updatedAt && ` • Cập nhật lần cuối: ${formatDateTime(initialSetting.updatedAt)}`}
                 </Typography>
               </Box>
             </Box>
             <Chip label="Đang Hoạt Động" size="small" color="success" variant="outlined" sx={{ height: 22, fontSize: '0.6875rem' }} />
           </Box>
 
-          <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-              <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
-                Ước tính đã dùng: <strong>1.4 GB / {storageQuotaGb} GB (7%)</strong>
+          <Box
+            component="form"
+            onSubmit={handleSave}
+            sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}
+          >
+            {message && (
+              <Alert severity={message.type} sx={{ fontSize: '0.8125rem' }}>
+                {message.text}
+              </Alert>
+            )}
+
+            <Box>
+              <Typography variant="caption" sx={{ fontWeight: 600, color: 'text.secondary', display: 'block', mb: 1 }}>
+                Dung lượng ổ đĩa máy chủ (Giới hạn lưu trữ dự án)
               </Typography>
-              <Typography variant="caption" sx={{ color: 'success.main', fontWeight: 600 }}>
-                An toàn
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
+                  Đã sử dụng: <strong>1.45 GB</strong> / {storageQuotaGb} GB
+                </Typography>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                  {Math.round((1.45 / storageQuotaGb) * 100)}%
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={Math.min(100, (1.45 / storageQuotaGb) * 100)}
+                sx={{ height: 6, borderRadius: 1 }}
+              />
             </Box>
-            <LinearProgress
-              variant="determinate"
-              value={7}
-              sx={{ height: 6, borderRadius: 3, bgcolor: '#f1f5f9' }}
-            />
-            <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 1 }}>
-              Pipeline Sharp (Ảnh WebP) & FFmpeg (Video 720p) giúp tiết kiệm 70% dung lượng đĩa cứng.
-            </Typography>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {/* Settings Form */}
-      <Card>
-        <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2, pb: 1, borderBottom: '1px solid #f1f5f9' }}>
-            Cấu Hình Giới Hạn Tải Lên & Định Dạng Tệp Tin
-          </Typography>
-
-          {message && (
-            <Alert severity={message.type} sx={{ mb: 2.5, fontSize: '0.8125rem' }}>
-              {message.text}
-            </Alert>
-          )}
-
-          <Box component="form" onSubmit={handleSave} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-            <TextField
-              label="MIME types được phép tải lên (phân cách bởi dấu phẩy)"
-              required
-              fullWidth
-              size="small"
-              value={allowedFileTypes}
-              onChange={(e) => setAllowedFileTypes(e.target.value)}
-              helperText="Mặc định: image/png,image/jpeg,image/webp,video/mp4,video/quicktime"
-            />
 
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
               <TextField
-                label="Dung lượng 1 Ảnh tối đa (MB)"
+                label="Định dạng tệp cho phép upload"
+                helperText="Phân tách bằng dấu phẩy"
+                required
+                fullWidth
+                size="small"
+                value={allowedFileTypes}
+                onChange={(e) => setAllowedFileTypes(e.target.value)}
+              />
+
+              <TextField
+                label="Dung lượng tối đa ảnh đơn (MB)"
                 type="number"
-                inputProps={{ min: 1, max: 50 }}
+                helperText="Mặc định: 5MB (Tự động nén WebP)"
                 required
                 fullWidth
                 size="small"
                 value={maxImageSizeMb}
                 onChange={(e) => setMaxImageSizeMb(Number(e.target.value))}
-                helperText="Ảnh tự động nén WebP trước khi lưu"
               />
 
               <TextField
-                label="Dung lượng 1 Video tối đa (MB)"
+                label="Dung lượng tối đa video (MB)"
                 type="number"
-                inputProps={{ min: 5, max: 200 }}
+                helperText="Mặc định: 50MB (Tự động scale 720p)"
                 required
                 fullWidth
                 size="small"
                 value={maxVideoSizeMb}
                 onChange={(e) => setMaxVideoSizeMb(Number(e.target.value))}
-                helperText="Video tự động nén về chuẩn 720p"
               />
-            </Box>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, alignItems: 'center' }}>
               <TextField
-                label="Hạn mức ổ đĩa phân bổ (GB)"
+                label="Hạn mức tổng bộ nhớ máy chủ (GB)"
                 type="number"
-                inputProps={{ min: 1, max: 500 }}
+                helperText="Cảnh báo khi đạt 90% dung lượng"
                 required
                 fullWidth
                 size="small"
                 value={storageQuotaGb}
                 onChange={(e) => setStorageQuotaGb(Number(e.target.value))}
               />
+            </Box>
 
+            <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 1.5, border: '1px solid #e2e8f0' }}>
               <FormControlLabel
                 control={
                   <Switch
@@ -184,21 +180,28 @@ export function SettingsClientView({ initialSetting }: { initialSetting: Setting
                     color="primary"
                   />
                 }
-                label={<Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>Cho phép đính kèm Video tái hiện lỗi</Typography>}
+                label={
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
+                      Cho phép tải lên tệp video bằng chứng
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      Nếu tắt, người dùng chỉ có thể gửi ảnh chụp màn hình (giúp tiết kiệm băng thông máy chủ).
+                    </Typography>
+                  </Box>
+                }
               />
             </Box>
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1, borderTop: '1px solid #f1f5f9' }}>
-              <Button
+              <AppButton
                 type="submit"
-                variant="contained"
-                color="primary"
                 size="small"
                 disabled={isSubmitting}
-                startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : <SaveOutlinedIcon fontSize="small" />}
+                startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : <MorphIcon icon={Save} size={18} />}
               >
                 Lưu Cấu Hình
-              </Button>
+              </AppButton>
             </Box>
           </Box>
         </CardContent>

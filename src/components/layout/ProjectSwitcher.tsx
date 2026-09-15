@@ -7,7 +7,8 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
-import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { Layers } from 'lucide';
 
 export function ProjectSwitcher() {
   const { activeProject, setActiveProject } = useProjectStore();
@@ -22,7 +23,9 @@ export function ProjectSwitcher() {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
-        <LayersOutlinedIcon fontSize="small" sx={{ color: 'primary.main' }} />
+        <Box sx={{ color: 'primary.main', display: 'flex', alignItems: 'center' }}>
+          <MorphIcon icon={Layers} size={18} />
+        </Box>
         <Typography
           variant="caption"
           sx={{ fontWeight: 700, display: { xs: 'none', sm: 'inline' }, letterSpacing: 0.5 }}

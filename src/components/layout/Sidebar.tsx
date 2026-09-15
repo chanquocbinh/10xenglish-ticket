@@ -17,34 +17,44 @@ import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import BugReportOutlinedIcon from '@mui/icons-material/BugReportOutlined';
-import ChecklistRtlOutlinedIcon from '@mui/icons-material/ChecklistRtlOutlined';
-import ViewKanbanOutlinedIcon from '@mui/icons-material/ViewKanbanOutlined';
-import VerifiedUserOutlinedIcon from '@mui/icons-material/VerifiedUserOutlined';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import CloseIcon from '@mui/icons-material/Close';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import {
+  LayoutDashboard,
+  Bug,
+  ListTodo,
+  Kanban,
+  ShieldCheck,
+  Users,
+  Settings,
+  X,
+} from 'lucide';
 
 interface SidebarProps {
   currentUser: AuthJWTPayload;
+}
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  badge?: string;
 }
 
 export function Sidebar({ currentUser }: SidebarProps) {
   const pathname = usePathname();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
 
-  const navItems = [
-    { label: 'Dashboard & Báo Cáo', href: '/', icon: DashboardOutlinedIcon },
-    { label: 'Quản Lý Ticket Bug', href: '/tickets', icon: BugReportOutlinedIcon, badge: 'Bug' },
-    { label: 'Task & Todolist Hàng Ngày', href: '/tasks', icon: ChecklistRtlOutlinedIcon },
-    { label: 'Feature & Sprint Board', href: '/sprints', icon: ViewKanbanOutlinedIcon },
-    { label: 'Phê Duyệt Nghiệm Thu (UAT)', href: '/approval', icon: VerifiedUserOutlinedIcon, badge: 'Sign-off' },
+  const navItems: NavItem[] = [
+    { label: 'Tổng quan', href: '/', icon: LayoutDashboard },
+    { label: 'Quản lý ticket', href: '/tickets', icon: Bug, badge: 'Bug' },
+    { label: 'Quản lý task', href: '/tasks', icon: ListTodo },
+    { label: 'Feature & Sprint', href: '/sprints', icon: Kanban },
+    { label: 'Nghiệm thu', href: '/approval', icon: ShieldCheck, badge: 'Sign-off' },
   ];
 
   const adminItems = [
-    { label: 'Quản Lý Người Dùng', href: '/users', icon: PeopleAltOutlinedIcon, role: ['DEV_ADMIN', 'MANAGER'] },
-    { label: 'Cấu Hình & Lưu Trữ', href: '/settings', icon: SettingsOutlinedIcon, role: ['DEV_ADMIN'] },
+    { label: 'Quản lý người dùng', href: '/users', icon: Users, role: ['DEV_ADMIN', 'MANAGER'] },
+    { label: 'Cấu hình hệ thống', href: '/settings', icon: Settings, role: ['DEV_ADMIN'] },
   ];
 
   const sidebarContent = (
@@ -53,7 +63,7 @@ export function Sidebar({ currentUser }: SidebarProps) {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#0f172a',
+        bgcolor: 'var(--color-primary)',
         color: '#94a3b8',
       }}
     >
@@ -65,33 +75,34 @@ export function Sidebar({ currentUser }: SidebarProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #1e293b',
+          borderBottom: '1px solid var(--color-primary-border)',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box
+          component={Link}
+          href="/"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            textDecoration: 'none',
+          }}
+        >
           <Box
+            component="img"
+            src="/asset/logo.jpeg"
+            alt="10X English"
             sx={{
               width: 32,
               height: 32,
-              borderRadius: 1.5,
-              bgcolor: 'primary.main',
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: '0.875rem',
-              letterSpacing: 0.5,
+              borderRadius: 0.5,
+              objectFit: 'cover',
+              display: 'block',
             }}
-          >
-            10X
-          </Box>
+          />
           <Box>
             <Typography variant="subtitle2" sx={{ color: '#ffffff', fontWeight: 700, lineHeight: 1.2 }}>
-              10X ENGLISH
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.6875rem' }}>
-              Portal Quản Lý & Nghiệm Thu
+              QUẢN LÝ CÔNG VIỆC
             </Typography>
           </Box>
         </Box>
@@ -101,21 +112,20 @@ export function Sidebar({ currentUser }: SidebarProps) {
           size="small"
           sx={{ display: { lg: 'none' }, color: '#94a3b8' }}
         >
-          <CloseIcon fontSize="small" />
+          <MorphIcon icon={X} size={18} />
         </IconButton>
       </Box>
 
       {/* Navigation list */}
-      <Box sx={{ flex: 1, py: 2, px: 1.5, overflowY: 'auto' }}>
+      <Box sx={{ flex: 1, py: 2, px: 0, overflowY: 'auto' }}>
         <Typography
           variant="caption"
-          sx={{ px: 1, pb: 1, display: 'block', fontWeight: 600, color: '#475569', letterSpacing: 0.5 }}
+          sx={{ px: 2, pb: 1, display: 'block', fontWeight: 600, color: '#475569', letterSpacing: 0.5, fontSize: '8px' }}
         >
-          PHÂN HỆ NGHIỆP VỤ
+          CÔNG VIỆC
         </Typography>
         <List dense disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           {navItems.map((item) => {
-            const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
               <ListItem key={item.href} disablePadding>
@@ -125,20 +135,19 @@ export function Sidebar({ currentUser }: SidebarProps) {
                   onClick={() => setSidebarOpen(false)}
                   selected={isActive}
                   sx={{
-                    borderRadius: 1.5,
                     py: 1,
-                    px: 1.5,
-                    color: isActive ? '#ffffff' : '#94a3b8',
-                    bgcolor: isActive ? '#1e293b !important' : 'transparent',
-                    borderLeft: isActive ? '3px solid #1976d2' : '3px solid transparent',
+                    px: 2,
+                    color: isActive ? '#ffffff' : '#cbd5e1',
+                    bgcolor: isActive ? 'var(--color-primary-active) !important' : 'transparent',
+                    borderLeft: isActive ? '3px solid var(--color-primary-accent)' : '3px solid transparent',
                     '&:hover': {
-                      bgcolor: '#1e293b',
+                      bgcolor: 'var(--color-primary-hover)',
                       color: '#ffffff',
                     },
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 32, color: isActive ? 'primary.main' : '#64748b' }}>
-                    <Icon fontSize="small" />
+                  <ListItemIcon sx={{ minWidth: 32, color: isActive ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center' }}>
+                    <MorphIcon icon={item.icon} size={18} />
                   </ListItemIcon>
                   <ListItemText
                     primary={item.label}
@@ -168,14 +177,13 @@ export function Sidebar({ currentUser }: SidebarProps) {
 
         <Typography
           variant="caption"
-          sx={{ px: 1.5, pt: 3, pb: 1, display: 'block', fontWeight: 700, color: '#475569', letterSpacing: 0.5 }}
+          sx={{ px: 2, pt: 3, pb: 1, display: 'block', fontWeight: 700, color: '#475569', letterSpacing: 0.5, fontSize: '8px' }}
         >
           HỆ THỐNG
         </Typography>
         <List dense disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           {adminItems.map((item) => {
             if (!item.role.includes(currentUser.role)) return null;
-            const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
               <ListItem key={item.href} disablePadding>
@@ -185,20 +193,19 @@ export function Sidebar({ currentUser }: SidebarProps) {
                   onClick={() => setSidebarOpen(false)}
                   selected={isActive}
                   sx={{
-                    borderRadius: 1.5,
                     py: 1,
-                    px: 1.5,
-                    color: isActive ? '#ffffff' : '#94a3b8',
-                    bgcolor: isActive ? '#1e293b !important' : 'transparent',
-                    borderLeft: isActive ? '3px solid #1976d2' : '3px solid transparent',
+                    px: 2,
+                    color: isActive ? '#ffffff' : '#cbd5e1',
+                    bgcolor: isActive ? 'var(--color-primary-active) !important' : 'transparent',
+                    borderLeft: isActive ? '3px solid var(--color-primary-accent)' : '3px solid transparent',
                     '&:hover': {
-                      bgcolor: '#1e293b',
+                      bgcolor: 'var(--color-primary-hover)',
                       color: '#ffffff',
                     },
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 32, color: isActive ? 'primary.main' : '#64748b' }}>
-                    <Icon fontSize="small" />
+                  <ListItemIcon sx={{ minWidth: 32, color: isActive ? '#ffffff' : '#94a3b8', display: 'flex', alignItems: 'center' }}>
+                    <MorphIcon icon={item.icon} size={18} />
                   </ListItemIcon>
                   <ListItemText
                     primary={item.label}
@@ -214,15 +221,15 @@ export function Sidebar({ currentUser }: SidebarProps) {
         </List>
       </Box>
 
-      <Divider sx={{ borderColor: '#1e293b' }} />
+      <Divider sx={{ borderColor: 'var(--color-primary-border)' }} />
 
       {/* User profile card */}
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: '#0b1120' }}>
+      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: 'var(--color-primary-dark)' }}>
         <Avatar
           sx={{
             width: 32,
             height: 32,
-            bgcolor: 'primary.main',
+            bgcolor: 'var(--color-primary-light)',
             fontSize: '0.75rem',
             fontWeight: 700,
           }}
@@ -237,8 +244,8 @@ export function Sidebar({ currentUser }: SidebarProps) {
             {currentUser.role === 'DEV_ADMIN'
               ? 'Dev Super Admin'
               : currentUser.role === 'MANAGER'
-              ? 'Ban Quản Lý'
-              : currentUser.departmentName || currentUser.role}
+                ? 'Ban Quản Lý'
+                : currentUser.departmentName || currentUser.role}
           </Typography>
         </Box>
       </Box>

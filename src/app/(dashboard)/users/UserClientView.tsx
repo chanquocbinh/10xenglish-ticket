@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { createUserAction, resetPasswordAction } from '@/app/actions/auth.actions';
 import { useRouter } from 'next/navigation';
 import { Role } from '@/types/auth';
+import { formatDateTime } from '@/lib/date';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Chip from '@mui/material/Chip';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -31,13 +33,8 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
-import DomainOutlinedIcon from '@mui/icons-material/DomainOutlined';
-import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
-import AddIcon from '@mui/icons-material/Add';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import CloseIcon from '@mui/icons-material/Close';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { Users, Building2, Key, Plus, Copy, RotateCcw, X } from 'lucide';
 
 interface UserData {
   id: string;
@@ -47,6 +44,7 @@ interface UserData {
   role: string;
   isPasswordChanged: boolean;
   department: { name: string } | null;
+  createdAt?: Date;
 }
 
 export function UserClientView({
@@ -131,7 +129,7 @@ export function UserClientView({
                 justifyContent: 'center',
               }}
             >
-              <PeopleAltOutlinedIcon />
+              <MorphIcon icon={Users} size={20} />
             </Box>
             <Box>
               <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
@@ -158,7 +156,7 @@ export function UserClientView({
                 justifyContent: 'center',
               }}
             >
-              <DomainOutlinedIcon />
+              <MorphIcon icon={Building2} size={20} />
             </Box>
             <Box>
               <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
@@ -185,7 +183,7 @@ export function UserClientView({
                 justifyContent: 'center',
               }}
             >
-              <VpnKeyOutlinedIcon />
+              <MorphIcon icon={Key} size={20} />
             </Box>
             <Box>
               <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
@@ -214,15 +212,13 @@ export function UserClientView({
             Danh Sách Thành Viên & Phân Quyền
           </Typography>
           {currentUserRole === 'DEV_ADMIN' && (
-            <Button
-              variant="contained"
-              color="primary"
+            <AppButton
               size="small"
-              startIcon={<AddIcon />}
+              startIcon={<MorphIcon icon={Plus} size={18} />}
               onClick={() => setIsModalOpen(true)}
             >
               Tạo Tài Khoản Mới
-            </Button>
+            </AppButton>
           )}
         </CardContent>
       </Card>
@@ -247,9 +243,14 @@ export function UserClientView({
                   <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
                     {u.fullName}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: 'monospace' }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: 'monospace', display: 'block' }}>
                     {u.email} • @{u.username}
                   </Typography>
+                  {u.createdAt && (
+                    <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.6875rem', display: 'block', fontFamily: 'monospace' }}>
+                      Tạo lúc: {formatDateTime(u.createdAt)}
+                    </Typography>
+                  )}
                 </TableCell>
 
                 <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -316,7 +317,7 @@ export function UserClientView({
                       size="small"
                       variant="outlined"
                       color="inherit"
-                      startIcon={<ContentCopyIcon fontSize="small" />}
+                      startIcon={<MorphIcon icon={Copy} size={14} />}
                       onClick={() => handleCopyZalo(u)}
                       sx={{ fontSize: '0.6875rem', py: 0.25 }}
                     >
@@ -327,7 +328,7 @@ export function UserClientView({
                         size="small"
                         variant="outlined"
                         color="inherit"
-                        startIcon={<RestartAltIcon fontSize="small" />}
+                        startIcon={<MorphIcon icon={RotateCcw} size={14} />}
                         onClick={() => handleResetPass(u.id, u.fullName)}
                         sx={{ fontSize: '0.6875rem', py: 0.25 }}
                       >
@@ -359,7 +360,7 @@ export function UserClientView({
             Tạo Tài Khoản Mới
           </Typography>
           <IconButton onClick={() => setIsModalOpen(false)} size="small" sx={{ color: 'text.secondary' }}>
-            <CloseIcon fontSize="small" />
+            <MorphIcon icon={X} size={18} />
           </IconButton>
         </DialogTitle>
 
@@ -442,16 +443,14 @@ export function UserClientView({
             <Button onClick={() => setIsModalOpen(false)} color="inherit" size="small">
               Hủy
             </Button>
-            <Button
+            <AppButton
               type="submit"
-              variant="contained"
-              color="primary"
               size="small"
               disabled={isSubmitting}
               startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}
             >
               Tạo Tài Khoản
-            </Button>
+            </AppButton>
           </DialogActions>
         </Box>
       </Dialog>

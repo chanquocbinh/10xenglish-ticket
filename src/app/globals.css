@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+:root {
+  /* Primary brand color */
+  --color-primary: rgb(5, 31, 77);
+  --color-primary-dark: #03132F;
+  --color-primary-light: #33527A;
+  --color-primary-hover: #0F2E5C;
+  --color-primary-active: #1E3A6B;
+  --color-primary-accent: #60A5FA;
+  --color-primary-border: #0A2A5E;
+}
+
 @layer base {
   body {
     background-color: #f8fafc;

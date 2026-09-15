@@ -9,10 +9,11 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
-import LockResetOutlinedIcon from '@mui/icons-material/LockResetOutlined';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { KeyRound } from 'lucide';
 
 export default function ChangePasswordPage() {
   const [currentPassword, setCurrentPassword] = useState('10xEnglish@2026');
@@ -69,7 +70,7 @@ export default function ChangePasswordPage() {
                 justifyContent: 'center',
               }}
             >
-              <LockResetOutlinedIcon />
+              <MorphIcon icon={KeyRound} size={22} />
             </Box>
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
@@ -124,10 +125,8 @@ export default function ChangePasswordPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
 
-            <Button
+            <AppButton
               type="submit"
-              variant="contained"
-              color="primary"
               fullWidth
               size="medium"
               disabled={isSubmitting}
@@ -135,7 +134,7 @@ export default function ChangePasswordPage() {
               sx={{ mt: 1, py: 1 }}
             >
               Lưu Mật Khẩu & Vào Dashboard
-            </Button>
+            </AppButton>
           </Box>
         </CardContent>
       </Card>

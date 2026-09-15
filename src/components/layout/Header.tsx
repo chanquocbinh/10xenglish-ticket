@@ -7,13 +7,11 @@ import { useRouter } from 'next/navigation';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
-import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import MenuIcon from '@mui/icons-material/Menu';
-import AddCircleOutlinedIcon from '@mui/icons-material/AddCircleOutlined';
-import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
-import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { Menu, PlusCircle, Shield, LogOut } from 'lucide';
 
 export function Header() {
   const { toggleSidebar, setTicketModalOpen, setSprintGuardModalOpen } = useUIStore();
@@ -47,36 +45,32 @@ export function Header() {
             size="small"
             sx={{ display: { lg: 'none' }, color: 'text.secondary' }}
           >
-            <MenuIcon fontSize="small" />
+            <MorphIcon icon={Menu} size={20} />
           </IconButton>
           <ProjectSwitcher />
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Button
-            variant="contained"
-            color="primary"
+          <AppButton
             size="small"
-            startIcon={<AddCircleOutlinedIcon />}
+            startIcon={<MorphIcon icon={PlusCircle} size={18} />}
             onClick={() => setTicketModalOpen(true)}
           >
             Báo Bug Mới
-          </Button>
+          </AppButton>
 
-          <Button
-            variant="outlined"
-            color="warning"
+          <AppButton
             size="small"
-            startIcon={<ShieldOutlinedIcon />}
+            startIcon={<MorphIcon icon={Shield} size={18} />}
             onClick={() => setSprintGuardModalOpen(true)}
             sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
           >
             Ràng Buộc Sprint
-          </Button>
+          </AppButton>
 
           <Tooltip title="Đăng xuất">
             <IconButton onClick={handleLogout} size="small" sx={{ color: 'text.secondary', ml: 0.5 }}>
-              <LogoutOutlinedIcon fontSize="small" />
+              <MorphIcon icon={LogOut} size={18} />
             </IconButton>
           </Tooltip>
         </Box>

@@ -9,7 +9,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
@@ -120,10 +120,8 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
 
-            <Button
+            <AppButton
               type="submit"
-              variant="contained"
-              color="primary"
               fullWidth
               size="medium"
               disabled={isSubmitting}
@@ -131,7 +129,7 @@ export default function LoginPage() {
               sx={{ mt: 0.5, py: 1 }}
             >
               Đăng Nhập Vào Portal
-            </Button>
+            </AppButton>
           </Box>
 
           <Divider sx={{ my: 3 }} />

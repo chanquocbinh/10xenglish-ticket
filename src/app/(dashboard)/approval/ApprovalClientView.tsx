@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { signOffAction } from '@/app/actions/task.actions';
 import { useRouter } from 'next/navigation';
 import { AuthJWTPayload } from '@/types/auth';
+import { formatDateTime } from '@/lib/date';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -25,10 +26,8 @@ import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 
-import CheckIcon from '@mui/icons-material/Check';
-import CloseIcon from '@mui/icons-material/Close';
-import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { Check, X, Shield, CheckCircle } from 'lucide';
 
 interface ApprovalProps {
   currentUser: AuthJWTPayload;
@@ -115,7 +114,7 @@ export function ApprovalClientView({
       <Alert
         severity="info"
         variant="outlined"
-        icon={<ShieldOutlinedIcon />}
+        icon={<MorphIcon icon={Shield} size={20} />}
         sx={{ bgcolor: 'background.paper', fontSize: '0.8125rem' }}
       >
         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
@@ -171,7 +170,7 @@ export function ApprovalClientView({
                 size="small"
                 fullWidth
                 disabled={isProcessing}
-                startIcon={<CheckIcon fontSize="small" />}
+                startIcon={<MorphIcon icon={Check} size={16} />}
                 onClick={() => handleApprove('TICKET', tk.id, tk.title)}
               >
                 Chấp Thuận Nghiệm Thu (Đạt)
@@ -182,7 +181,7 @@ export function ApprovalClientView({
                 size="small"
                 fullWidth
                 disabled={isProcessing}
-                startIcon={<CloseIcon fontSize="small" />}
+                startIcon={<MorphIcon icon={X} size={16} />}
                 onClick={() => setRejectModalTarget({ type: 'TICKET', id: tk.id, name: tk.title })}
               >
                 Yêu Cầu Sửa Lại
@@ -236,7 +235,7 @@ export function ApprovalClientView({
                 size="small"
                 fullWidth
                 disabled={isProcessing}
-                startIcon={<CheckIcon fontSize="small" />}
+                startIcon={<MorphIcon icon={Check} size={16} />}
                 onClick={() => handleApprove('TASK', t.id, t.title)}
               >
                 Chấp Thuận Nghiệm Thu (Đạt)
@@ -247,7 +246,7 @@ export function ApprovalClientView({
                 size="small"
                 fullWidth
                 disabled={isProcessing}
-                startIcon={<CloseIcon fontSize="small" />}
+                startIcon={<MorphIcon icon={X} size={16} />}
                 onClick={() => setRejectModalTarget({ type: 'TASK', id: t.id, name: t.title })}
               >
                 Yêu Cầu Sửa Lại
@@ -259,7 +258,9 @@ export function ApprovalClientView({
 
       {pendingTickets.length === 0 && pendingTasks.length === 0 && (
         <Card sx={{ p: 4, textAlign: 'center' }}>
-          <CheckCircleOutlinedIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
+          <Box sx={{ color: 'success.main', display: 'flex', justifyContent: 'center', mb: 1 }}>
+            <MorphIcon icon={CheckCircle} size={40} />
+          </Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
             Hiện không có hạng mục nào chờ nghiệm thu
           </Typography>
@@ -292,7 +293,7 @@ export function ApprovalClientView({
               >
                 <ListItemText
                   primary={log.detail}
-                  secondary={`Người duyệt: ${log.user.fullName} • ${new Date(log.createdAt).toLocaleString('vi-VN')}`}
+                  secondary={`Người duyệt: ${log.user.fullName} • ${formatDateTime(log.createdAt)}`}
                   primaryTypographyProps={{ fontSize: '0.8125rem', fontWeight: 600 }}
                   secondaryTypographyProps={{ fontSize: '0.6875rem' }}
                 />
@@ -327,7 +328,7 @@ export function ApprovalClientView({
               Yêu Cầu Sửa Lại (Nhập Lý Do)
             </Typography>
             <IconButton onClick={() => setRejectModalTarget(null)} size="small" sx={{ color: 'text.secondary' }}>
-              <CloseIcon fontSize="small" />
+              <MorphIcon icon={X} size={18} />
             </IconButton>
           </DialogTitle>
 

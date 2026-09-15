@@ -11,6 +11,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -27,10 +28,8 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 
-import CloseIcon from '@mui/icons-material/Close';
-import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { X, UploadCloud, Paperclip, CheckCircle } from 'lucide';
 
 export function CreateTicketModal({
   projects,
@@ -162,7 +161,7 @@ export function CreateTicketModal({
           size="small"
           sx={{ color: 'text.secondary' }}
         >
-          <CloseIcon fontSize="small" />
+          <MorphIcon icon={X} size={18} />
         </IconButton>
       </DialogTitle>
 
@@ -332,8 +331,10 @@ export function CreateTicketModal({
                   </Typography>
                 </Box>
               ) : (
-                <Box sx={{ textAlign: 'center' }}>
-                  <CloudUploadOutlinedIcon sx={{ color: 'text.secondary', fontSize: 32, mb: 0.5 }} />
+                <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Box sx={{ color: 'text.secondary', mb: 0.5 }}>
+                    <MorphIcon icon={UploadCloud} size={32} />
+                  </Box>
                   <Typography variant="body2" sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
                     Nhấn vào đây để tải file hoặc nhấn <strong>Ctrl + V</strong> để dán ảnh
                   </Typography>
@@ -349,7 +350,7 @@ export function CreateTicketModal({
                 {evidenceUrls.map((url, idx) => (
                   <Chip
                     key={idx}
-                    icon={<AttachFileIcon fontSize="small" />}
+                    icon={<MorphIcon icon={Paperclip} size={14} />}
                     label={url.split('/').pop() || url}
                     onDelete={() => setEvidenceUrls((prev) => prev.filter((_, i) => i !== idx))}
                     size="small"
@@ -365,22 +366,20 @@ export function CreateTicketModal({
           <Button onClick={() => setTicketModalOpen(false)} color="inherit" size="small">
             Hủy
           </Button>
-          <Button
+          <AppButton
             type="submit"
-            variant="contained"
-            color="primary"
             size="small"
             disabled={isSubmitting || isUploading}
             startIcon={
               isSubmitting ? (
                 <CircularProgress size={16} color="inherit" />
               ) : (
-                <CheckCircleOutlinedIcon fontSize="small" />
+                <MorphIcon icon={CheckCircle} size={18} />
               )
             }
           >
             Gửi Báo Lỗi
-          </Button>
+          </AppButton>
         </DialogActions>
       </Box>
     </Dialog>

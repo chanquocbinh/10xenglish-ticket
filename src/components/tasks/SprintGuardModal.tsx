@@ -25,8 +25,8 @@ import Paper from '@mui/material/Paper';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 
-import CloseIcon from '@mui/icons-material/Close';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { X, ArrowLeftRight } from 'lucide';
 
 interface TaskOption {
   id: string;
@@ -111,7 +111,7 @@ export function SprintGuardModal({
           size="small"
           sx={{ color: 'text.secondary' }}
         >
-          <CloseIcon fontSize="small" />
+          <MorphIcon icon={X} size={18} />
         </IconButton>
       </DialogTitle>
 
@@ -228,7 +228,7 @@ export function SprintGuardModal({
               isSubmitting ? (
                 <CircularProgress size={16} color="inherit" />
               ) : (
-                <SwapHorizIcon fontSize="small" />
+                <MorphIcon icon={ArrowLeftRight} size={18} />
               )
             }
           >

@@ -5,10 +5,12 @@ import { createTheme } from '@mui/material/styles';
 export const theme = createTheme({
   palette: {
     mode: 'light',
+    // Mirror of --color-primary (globals.css). MUI's color engine (alpha/darken
+    // used by text & outlined variants) needs static values, so keep hex here.
     primary: {
-      main: '#1976d2',
-      light: '#42a5f5',
-      dark: '#1565c0',
+      main: '#051F4D',
+      light: '#33527A',
+      dark: '#03132F',
       contrastText: '#ffffff',
     },
     secondary: {
@@ -80,6 +82,12 @@ export const theme = createTheme({
           fontSize: '0.8125rem',
           padding: '6px 16px',
         },
+        containedPrimary: {
+          backgroundColor: 'var(--color-primary)',
+          '&:hover': {
+            backgroundColor: 'var(--color-primary-dark)',
+          },
+        },
       },
     },
     MuiCard: {
@@ -147,7 +155,7 @@ export const theme = createTheme({
             borderColor: '#94a3b8',
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#1976d2',
+            borderColor: 'var(--color-primary)',
             borderWidth: 1, // Giữ nguyên độ dày 1px, không nở to viền đậm
           },
           '&.Mui-error .MuiOutlinedInput-notchedOutline': {
@@ -169,7 +177,7 @@ export const theme = createTheme({
         root: {
           fontSize: '0.8125rem',
           '&.Mui-focused': {
-            color: '#1976d2',
+            color: 'var(--color-primary)',
           },
         },
         outlined: {
@@ -185,7 +193,7 @@ export const theme = createTheme({
         root: {
           fontSize: '0.8125rem',
           '&.Mui-focused': {
-            color: '#1976d2',
+            color: 'var(--color-primary)',
           },
         },
       },

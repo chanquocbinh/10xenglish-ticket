@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useUIStore } from '@/stores/useUIStore';
 import { updateTicketStatusAction, addCommentAction } from '@/app/actions/ticket.actions';
 import { useRouter } from 'next/navigation';
+import { formatDateTime } from '@/lib/date';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -13,6 +14,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
+import { AppButton } from '@/components/ui/AppButton';
 import Chip from '@mui/material/Chip';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -31,12 +33,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import InputAdornment from '@mui/material/InputAdornment';
 import Divider from '@mui/material/Divider';
 
-import SearchIcon from '@mui/icons-material/Search';
-import AddIcon from '@mui/icons-material/Add';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import CloseIcon from '@mui/icons-material/Close';
-import SendIcon from '@mui/icons-material/Send';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { MorphIcon } from '@/components/ui/MorphIcon';
+import { Search, Plus, Paperclip, X, Send, ExternalLink } from 'lucide';
 
 type TicketWithDetails = {
   id: string;
@@ -139,7 +137,9 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                    <Box sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center' }}>
+                      <MorphIcon icon={Search} size={18} />
+                    </Box>
                   </InputAdornment>
                 ),
               }}
@@ -200,15 +200,13 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
             </FormControl>
           </Box>
 
-          <Button
-            variant="contained"
-            color="primary"
+          <AppButton
             size="small"
-            startIcon={<AddIcon />}
+            startIcon={<MorphIcon icon={Plus} size={18} />}
             onClick={() => setTicketModalOpen(true)}
           >
             Báo Bug Mới
-          </Button>
+          </AppButton>
         </CardContent>
       </Card>
 
@@ -247,9 +245,15 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
                   <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
                     {t.title}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                    {t.submodule}
-                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      {t.submodule}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.6875rem' }}>•</Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6875rem', fontFamily: 'monospace' }}>
+                      {formatDateTime(t.createdAt)}
+                    </Typography>
+                  </Box>
                 </TableCell>
 
                 <TableCell onClick={() => setSelectedTicket(t)} sx={{ whiteSpace: 'nowrap' }}>
@@ -322,7 +326,7 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
                               : t.status === 'RESOLVED'
                               ? '#ea580c'
                               : t.status === 'IN_PROGRESS'
-                              ? '#1976d2'
+                              ? 'var(--color-primary)'
                               : t.status === 'NEW'
                               ? '#64748b'
                               : '#475569',
@@ -378,7 +382,7 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
                 <TableCell onClick={() => setSelectedTicket(t)} sx={{ whiteSpace: 'nowrap' }}>
                   {t.evidenceUrls.length > 0 ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
-                      <AttachFileIcon fontSize="inherit" />
+                      <MorphIcon icon={Paperclip} size={14} />
                       <Typography variant="caption" sx={{ fontWeight: 600 }}>
                         {t.evidenceUrls.length}
                       </Typography>
@@ -444,7 +448,7 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
               size="small"
               sx={{ color: 'text.secondary' }}
             >
-              <CloseIcon fontSize="small" />
+              <MorphIcon icon={X} size={18} />
             </IconButton>
           </DialogTitle>
 
@@ -453,7 +457,7 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
+                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(5, 1fr)' },
                 gap: 1.5,
                 p: 1.5,
                 bgcolor: '#f8fafc',
@@ -493,6 +497,14 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
                   {selectedTicket.reporter.fullName}
                 </Typography>
               </Box>
+              <Box>
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                  Thời gian tạo:
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8125rem', fontFamily: 'monospace' }}>
+                  {formatDateTime(selectedTicket.createdAt)}
+                </Typography>
+              </Box>
             </Box>
 
             {/* Description */}
@@ -523,7 +535,7 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
                       target="_blank"
                       variant="outlined"
                       size="small"
-                      startIcon={<OpenInNewIcon fontSize="small" />}
+                      startIcon={<MorphIcon icon={ExternalLink} size={14} />}
                     >
                       Mở tệp tin {i + 1}
                     </Button>
@@ -547,14 +559,12 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
                 Cập nhật tiến độ xử lý:
               </Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
+                <AppButton
                   size="small"
                   onClick={() => handleUpdateStatus('IN_PROGRESS')}
                 >
                   Đang Xử Lý
-                </Button>
+                </AppButton>
                 <Button
                   variant="contained"
                   color="warning"
@@ -587,8 +597,8 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
                       <Typography variant="caption" sx={{ fontWeight: 700 }}>
                         {c.user.fullName}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {new Date(c.createdAt).toLocaleTimeString('vi-VN')}
+                      <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6875rem', fontFamily: 'monospace' }}>
+                        {formatDateTime(c.createdAt)}
                       </Typography>
                     </Box>
                     <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
@@ -606,15 +616,13 @@ export function TicketClientView({ initialTickets }: { initialTickets: TicketWit
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                 />
-                <Button
+                <AppButton
                   type="submit"
-                  variant="contained"
-                  color="primary"
                   disabled={isSubmittingComment}
-                  startIcon={isSubmittingComment ? <CircularProgress size={16} color="inherit" /> : <SendIcon fontSize="small" />}
+                  startIcon={isSubmittingComment ? <CircularProgress size={16} color="inherit" /> : <MorphIcon icon={Send} size={16} />}
                 >
                   Gửi
-                </Button>
+                </AppButton>
               </Box>
             </Box>
           </DialogContent>
