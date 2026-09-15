@@ -1,30 +1,11 @@
-import { prisma } from '@/lib/prisma';
-import { getCurrentUser } from '@/lib/auth';
-import { SettingsClientView } from './SettingsClientView';
-import { redirect } from 'next/navigation';
+import { requirePagePermission } from '@/core/server/page';
+import { getSystemSetting } from '@/modules/settings/settings.service';
+import { SettingsForm } from '@/modules/settings/components/SettingsForm';
 
 export default async function SettingsPage() {
-  const currentUser = await getCurrentUser();
-  if (!currentUser || currentUser.role !== 'DEV_ADMIN') {
-    redirect('/');
-  }
+  await requirePagePermission('settings.view');
 
-  let setting = await prisma.systemSetting.findUnique({
-    where: { id: 'default' },
-  });
+  const setting = await getSystemSetting();
 
-  if (!setting) {
-    setting = await prisma.systemSetting.create({
-      data: {
-        id: 'default',
-        allowedFileTypes: 'image/png,image/jpeg,image/webp,video/mp4,video/quicktime',
-        maxImageSizeMb: 10,
-        maxVideoSizeMb: 50,
-        allowVideoUpload: true,
-        storageQuotaGb: 20,
-      },
-    });
-  }
-
-  return <SettingsClientView initialSetting={setting} />;
+  return <SettingsForm initialSetting={setting} />;
 }

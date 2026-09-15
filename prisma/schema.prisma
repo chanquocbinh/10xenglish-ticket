@@ -7,16 +7,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  DEV_ADMIN       // Kỹ thuật viên chính / Quản trị viên cao nhất
-  MANAGER         // Sếp / Quản lý - có quyền ký duyệt nghiệm thu
-  LEAD_STAFF      // Trưởng bộ phận
-  STAFF           // Nhân viên báo lỗi
-}
-
-enum ProjectCode {
-  LMS             // Project 1: Học Vụ & LMS Học Viên
-  CRM             // Project 2: CRM Tuyển Sinh & Kế Toán Vận Hành
+enum ProjectRole {
+  MANAGER
+  MEMBER
 }
 
 enum TicketSeverity {
@@ -47,6 +40,23 @@ enum TaskStatus {
   DONE
 }
 
+enum NoteType {
+  DOCUMENT        // Rich text note (Tiptap)
+  TODO            // Checklist công việc cá nhân
+  KANBAN          // Board cá nhân 3 cột
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  description String?
+  permissions String[]     @default([])
+  isSystem    Boolean      @default(false) // Vai trò hệ thống (Super Admin) không thể sửa/xóa
+  users       User[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
 model Department {
   id          String   @id @default(uuid())
   name        String   // VD: Học vụ & Đào tạo, Tư vấn Tuyển sinh, Kế toán...
@@ -62,26 +72,64 @@ model User {
   fullName            String
   passwordHash        String
   isPasswordChanged   Boolean      @default(false) // Bắt buộc đổi mật khẩu ở lần login đầu
-  role                Role         @default(STAFF)
+  roleId              String
+  role                Role         @relation(fields: [roleId], references: [id])
   departmentId        String?
   department          Department?  @relation(fields: [departmentId], references: [id])
   ticketsCreated      Ticket[]     @relation("TicketReporter")
   tasksAssigned       Task[]       @relation("TaskAssignee")
   auditLogs           AuditLog[]
   comments            Comment[]
+  notes               PersonalNote[]
+  memberships         ProjectMember[]
+  defaultProjectId    String?
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 }
 
+model PersonalNote {
+  id               String   @id @default(uuid())
+  userId           String
+  title            String
+  type             NoteType @default(DOCUMENT)
+  encryptedContent String   @db.Text
+  iv               String   @db.VarChar(64)
+  isPinned         Boolean  @default(false)
+  sortOrder        Int      @default(0)
+  tags             String[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sortOrder(sort: Desc)])
+  @@map("personal_notes")
+}
+
 model Project {
-  id          String       @id @default(uuid())
-  code        ProjectCode  @unique
-  name        String       // "Project 1: Học Vụ & LMS Học Viên"
+  id          String          @id @default(uuid())
+  code        String          @unique
+  name        String          // "Project 1: Học Vụ & LMS Học Viên"
   description String?
+  isActive    Boolean         @default(true)
   tickets     Ticket[]
   tasks       Task[]
   sprints     Sprint[]
-  createdAt   DateTime     @default(now())
+  members     ProjectMember[]
+  createdAt   DateTime        @default(now())
+}
+
+model ProjectMember {
+  id        String      @id @default(uuid())
+  userId    String
+  projectId String
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+  @@index([userId])
+  @@index([projectId])
 }
 
 model Sprint {

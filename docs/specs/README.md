@@ -7,6 +7,8 @@ Tài liệu này là chỉ dẫn thứ tự ưu tiên từng bước dành cho A
 > 1. Triển khai tuần tự từ Phase 1 đến Phase 8.
 > 2. Luôn hoàn thành Prisma Schema và Zod validation trước khi dựng UI.
 > 3. Kiểm tra xong tiêu chí hoàn thành (DoD) của Phase hiện tại mới chuyển sang Phase kế tiếp.
+>
+> **Lưu ý về đường dẫn file:** các tài liệu trong thư mục này là đặc tả *yêu cầu nghiệp vụ* viết trước khi code, nên còn nhắc tới bố cục cũ (`src/lib/**`, `src/stores/**`, `src/components/**`, `src/app/actions/**`). Bố cục thực tế hiện tại theo clean architecture + module: xem [`../ARCHITECTURE.md`](../ARCHITECTURE.md) (có bảng ánh xạ file cũ → mới).
 
 ---
 
