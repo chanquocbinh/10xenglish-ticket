@@ -17,5 +17,11 @@ export const changePasswordSchema = z.object({
   path: ['confirmPassword'],
 });
 
+export const updateProfileSchema = z.object({
+  fullName: z.string().min(2, 'Họ và tên tối thiểu 2 ký tự').max(100, 'Họ và tên tối đa 100 ký tự'),
+  email: z.string().email('Email không đúng định dạng'),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

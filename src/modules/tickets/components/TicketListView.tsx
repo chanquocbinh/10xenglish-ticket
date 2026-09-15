@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useUIStore } from '@/shared/stores/ui.store';
+import { toast } from '@/shared/stores/toast.store';
 import { updateTicketStatusAction, addCommentAction } from '@/modules/tickets/tickets.actions';
 import { useRouter } from 'next/navigation';
 import { formatDateTime } from '@/shared/utils/date';
@@ -71,15 +72,23 @@ export function TicketListView({ initialTickets, currentUser }: { initialTickets
     const res = await updateTicketStatusAction(selectedTicket.id, status);
     if (res.success) {
       setSelectedTicket((prev) => (prev ? { ...prev, status } : null));
+      toast.success('Đã cập nhật trạng thái ticket');
       router.refresh();
+    } else {
+      toast.error(res.error);
     }
   };
 
   const handleQuickUpdateStatus = async (ticketId: string, status: TicketStatus) => {
     setUpdatingTicketId(ticketId);
-    await updateTicketStatusAction(ticketId, status);
+    const res = await updateTicketStatusAction(ticketId, status);
     setUpdatingTicketId(null);
-    router.refresh();
+    if (res.success) {
+      toast.success('Đã cập nhật trạng thái ticket');
+      router.refresh();
+    } else {
+      toast.error(res.error);
+    }
   };
 
   const handleAddComment = async (e: React.FormEvent) => {
@@ -101,7 +110,10 @@ export function TicketListView({ initialTickets, currentUser }: { initialTickets
           : null
       );
       setCommentText('');
+      toast.success('Đã gửi bình luận');
       router.refresh();
+    } else {
+      toast.error(res.error);
     }
   };
 
@@ -191,7 +203,7 @@ export function TicketListView({ initialTickets, currentUser }: { initialTickets
           <TableHead>
             <TableRow>
               <TableCell sx={{ width: 100, whiteSpace: 'nowrap' }}>Mã Ticket</TableCell>
-              <TableCell sx={{ minWidth: 260, whiteSpace: 'nowrap' }}>Tiêu đề Bug & Phân hệ</TableCell>
+              <TableCell sx={{ minWidth: 260, whiteSpace: 'nowrap' }}>Tiêu đề Bug</TableCell>
               <TableCell sx={{ width: 110, whiteSpace: 'nowrap' }}>Dự án</TableCell>
               <TableCell sx={{ width: 150, whiteSpace: 'nowrap' }}>Người báo</TableCell>
               <TableCell sx={{ width: 130, whiteSpace: 'nowrap' }}>Mức độ</TableCell>
@@ -221,10 +233,6 @@ export function TicketListView({ initialTickets, currentUser }: { initialTickets
                     {t.title}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                      {t.submodule}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.6875rem' }}>•</Typography>
                     <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.6875rem', fontFamily: 'monospace' }}>
                       {formatDateTime(t.createdAt)}
                     </Typography>
@@ -399,7 +407,7 @@ export function TicketListView({ initialTickets, currentUser }: { initialTickets
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(5, 1fr)' },
+                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)' },
                 gap: 1.5,
                 p: 1.5,
                 bgcolor: '#f8fafc',
@@ -413,14 +421,6 @@ export function TicketListView({ initialTickets, currentUser }: { initialTickets
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
                   {selectedTicket.project.name}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                  Phân hệ:
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8125rem' }}>
-                  {selectedTicket.submodule}
                 </Typography>
               </Box>
               <Box>

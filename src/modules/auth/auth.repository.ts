@@ -27,3 +27,17 @@ export function updatePassword(userId: string, passwordHash: string) {
     },
   });
 }
+
+export function findUserByEmail(email: string) {
+  return prisma.user.findFirst({
+    where: { email: email.toLowerCase().trim() },
+    select: { id: true },
+  });
+}
+
+export function updateProfile(userId: string, data: { fullName: string; email: string }) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { fullName: data.fullName, email: data.email },
+  });
+}

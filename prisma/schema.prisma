@@ -152,8 +152,6 @@ model Ticket {
   title          String
   projectId      String
   project        Project        @relation(fields: [projectId], references: [id])
-  submodule      String         // Điểm danh, Đóng học phí, Lịch giáo viên...
-  affectedRole   String         // Giáo viên, Học viên, Tư vấn, Kế toán
   severity       TicketSeverity @default(MEDIUM)
   status         TicketStatus   @default(NEW)
   description    String?        // Các bước tái hiện

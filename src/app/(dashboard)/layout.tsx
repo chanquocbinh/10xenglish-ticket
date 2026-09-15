@@ -5,6 +5,7 @@ import { listAccessibleProjects } from '@/modules/projects/projects.service';
 import { listCurrentSprintTaskOptions } from '@/modules/tasks/tasks.service';
 import { CreateTicketModal } from '@/modules/tickets/components/CreateTicketModal';
 import { SprintGuardModal } from '@/modules/tasks/components/SprintGuardModal';
+import { Toaster } from '@/shared/ui/Toaster';
 
 export default async function DashboardLayout({
   children,
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
       {/* Global Interactive Modals */}
       <CreateTicketModal projects={accessibleProjects} />
       <SprintGuardModal currentTasks={currentTasks} projects={accessibleProjects} />
+      <Toaster />
     </div>
   );
 }

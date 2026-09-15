@@ -28,8 +28,6 @@ export function create(input: CreateTicketInput & { reporterId: string }) {
     data: {
       title: input.title,
       projectId: input.projectId,
-      submodule: input.submodule,
-      affectedRole: input.affectedRole,
       severity: input.severity,
       description: input.description,
       evidenceUrls: input.evidenceUrls,

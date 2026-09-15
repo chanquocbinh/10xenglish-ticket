@@ -23,8 +23,6 @@ export type TicketWithDetails = {
   id: string;
   ticketNumber: number;
   title: string;
-  submodule: string;
-  affectedRole: string;
   severity: TicketSeverity;
   status: TicketStatus;
   description: string | null;

@@ -5,11 +5,13 @@ import { PERMISSION_CLAIM_VERSION, type AuthJWTPayload } from '@/core/auth/auth.
 import { PASSWORD_SALT_ROUNDS } from '@/core/config/env';
 import { AppError, NotFoundError } from '@/core/errors';
 import {
+  findUserByEmail,
   findUserById,
   findUserByUsernameOrEmail,
   updatePassword,
+  updateProfile as updateProfileRepo,
 } from './auth.repository';
-import type { ChangePasswordInput, LoginInput } from './auth.schema';
+import type { ChangePasswordInput, LoginInput, UpdateProfileInput } from './auth.schema';
 import type { LoginResult } from './auth.types';
 
 export async function login({ usernameOrEmail, password }: LoginInput): Promise<LoginResult> {
@@ -69,6 +71,35 @@ export async function changePassword(
     pv: PERMISSION_CLAIM_VERSION,
     departmentName: actor.departmentName,
     isPasswordChanged: true,
+  });
+  await setAuthCookie(token);
+}
+
+export async function updateProfile(
+  actor: AuthJWTPayload,
+  { fullName, email }: UpdateProfileInput,
+): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const existing = await findUserByEmail(normalizedEmail);
+  if (existing && existing.id !== actor.sub) {
+    throw new AppError('Email đã được sử dụng bởi tài khoản khác', 409, 'EMAIL_TAKEN');
+  }
+
+  await updateProfileRepo(actor.sub, { fullName, email: normalizedEmail });
+
+  // Cấp lại token để Header/Sidebar phản ánh thông tin cá nhân mới.
+  const token = await signJWT({
+    sub: actor.sub,
+    username: actor.username,
+    email: normalizedEmail,
+    fullName,
+    roleId: actor.roleId,
+    roleName: actor.roleName,
+    permissions: actor.permissions,
+    pv: PERMISSION_CLAIM_VERSION,
+    departmentName: actor.departmentName,
+    isPasswordChanged: actor.isPasswordChanged,
   });
   await setAuthCookie(token);
 }

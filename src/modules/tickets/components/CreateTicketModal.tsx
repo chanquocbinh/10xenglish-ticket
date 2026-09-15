@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useUIStore } from '@/shared/stores/ui.store';
+import { toast } from '@/shared/stores/toast.store';
 import { createTicketAction } from '@/modules/tickets/tickets.actions';
 import { useFileUpload } from '@/modules/storage/hooks/useFileUpload';
 import type { TicketSeverity } from '@/modules/tickets/tickets.types';
@@ -18,10 +19,6 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Radio from '@mui/material/Radio';
-import FormLabel from '@mui/material/FormLabel';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
@@ -47,8 +44,6 @@ export function CreateTicketModal({
 
   const [selectedProjCode, setSelectedProjCode] = useState<string>(initialProject?.code ?? '');
   const [title, setTitle] = useState('');
-  const [submodule, setSubmodule] = useState('');
-  const [affectedRole, setAffectedRole] = useState('');
   const [severity, setSeverity] = useState<TicketSeverity>('MEDIUM');
   const [description, setDescription] = useState('');
   const [evidenceUrls, setEvidenceUrls] = useState<string[]>([]);
@@ -88,8 +83,6 @@ export function CreateTicketModal({
     const res = await createTicketAction({
       projectId: currentProj.id,
       title,
-      submodule,
-      affectedRole,
       severity,
       description,
       evidenceUrls,
@@ -98,7 +91,9 @@ export function CreateTicketModal({
     setIsSubmitting(false);
     if (!res.success) {
       setErrorMessage(res.error);
+      toast.error(res.error);
     } else {
+      toast.success('Đã gửi báo lỗi thành công');
       setTicketModalOpen(false);
       setTitle('');
       setDescription('');
@@ -150,27 +145,6 @@ export function CreateTicketModal({
         <DialogContent sx={{ p: 2.5, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {(errorMessage || uploadError) && <Alert severity="error">{errorMessage || uploadError}</Alert>}
 
-          {/* Project Choice */}
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ fontSize: '0.8125rem', fontWeight: 600, mb: 0.5 }}>
-              Thuộc Dự Án *
-            </FormLabel>
-            <RadioGroup
-              row
-              value={selectedProjCode}
-              onChange={(e) => setSelectedProjCode(e.target.value)}
-            >
-              {projects.map((p) => (
-                <FormControlLabel
-                  key={p.id}
-                  value={p.code}
-                  control={<Radio size="small" />}
-                  label={<Typography variant="body2">{p.code} — {p.name}</Typography>}
-                />
-              ))}
-            </RadioGroup>
-          </FormControl>
-
           {/* Title */}
           <TextField
             label="Tiêu đề lỗi (Mô tả vắn tắt)"
@@ -182,26 +156,22 @@ export function CreateTicketModal({
             onChange={(e) => setTitle(e.target.value)}
           />
 
-          {/* Submodule & Affected Role */}
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-            <TextField
-              label="Phân hệ con bị lỗi"
-              placeholder="VD: Điểm danh & Sĩ số lớp"
-              fullWidth
-              size="small"
-              value={submodule}
-              onChange={(e) => setSubmodule(e.target.value)}
-            />
-
-            <TextField
-              label="Tài khoản gặp lỗi"
-              placeholder="VD: Giáo viên, Kế toán, Học viên..."
-              fullWidth
-              size="small"
-              value={affectedRole}
-              onChange={(e) => setAffectedRole(e.target.value)}
-            />
-          </Box>
+          {/* Project Choice */}
+          <FormControl fullWidth size="small" required>
+            <InputLabel id="project-label">Thuộc Dự Án</InputLabel>
+            <Select
+              labelId="project-label"
+              label="Thuộc Dự Án"
+              value={selectedProjCode}
+              onChange={(e) => setSelectedProjCode(e.target.value)}
+            >
+              {projects.map((p) => (
+                <MenuItem key={p.id} value={p.code}>
+                  {p.code} — {p.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
           {/* Severity */}
           <FormControl fullWidth size="small">
@@ -235,7 +205,7 @@ export function CreateTicketModal({
           {/* Upload Area */}
           <Box>
             <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mb: 0.5 }}>
-              Bằng chứng ảnh / video (Hỗ trợ <strong>Ctrl + V dán ảnh trực tiếp</strong>)
+              Bằng chứng ảnh / video
             </Typography>
 
             <Box

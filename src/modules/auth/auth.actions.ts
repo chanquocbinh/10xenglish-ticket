@@ -1,7 +1,7 @@
 'use server';
 
 import { parseInput, requireUser, runAction } from '@/core/server/action';
-import { changePasswordSchema, loginSchema } from './auth.schema';
+import { changePasswordSchema, loginSchema, updateProfileSchema } from './auth.schema';
 import * as authService from './auth.service';
 
 export async function loginAction(formData: FormData) {
@@ -29,5 +29,16 @@ export async function changePasswordAction(formData: FormData) {
       confirmPassword: String(formData.get('confirmPassword') ?? ''),
     });
     await authService.changePassword(actor, input);
+  });
+}
+
+export async function updateProfileAction(formData: FormData) {
+  return runAction(async () => {
+    const actor = await requireUser();
+    const input = parseInput(updateProfileSchema, {
+      fullName: String(formData.get('fullName') ?? '').trim(),
+      email: String(formData.get('email') ?? '').toLowerCase().trim(),
+    });
+    await authService.updateProfile(actor, input);
   });
 }

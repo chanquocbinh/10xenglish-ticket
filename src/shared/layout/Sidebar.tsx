@@ -14,7 +14,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
-import Avatar from '@mui/material/Avatar';
+import { SidebarUserMenu } from './SidebarUserMenu';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 
@@ -245,29 +245,8 @@ export function Sidebar({ currentUser, projects }: SidebarProps) {
 
       <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.08)' }} />
 
-      {/* User profile card */}
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: 'transparent' }}>
-        <Avatar
-          sx={{
-            width: 32,
-            height: 32,
-            bgcolor: 'rgba(255, 255, 255, 0.15)',
-            color: '#ffffff',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-          }}
-        >
-          {currentUser.fullName.slice(0, 2).toUpperCase()}
-        </Avatar>
-        <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography variant="body2" noWrap sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.8125rem' }}>
-            {currentUser.fullName}
-          </Typography>
-          <Typography variant="caption" noWrap sx={{ color: 'rgba(255, 255, 255, 0.5)', display: 'block', fontSize: '0.6875rem' }}>
-            {currentUser.roleName}
-          </Typography>
-        </Box>
-      </Box>
+      {/* User profile card with menu */}
+      <SidebarUserMenu currentUser={currentUser} />
     </Box>
   );
 
